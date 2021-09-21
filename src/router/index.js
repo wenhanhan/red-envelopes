@@ -32,6 +32,11 @@ import Layout from '@/layout'
  */
 export const constantRoutes = [
   {
+    path: '/login',
+    component: () => import('@/views/login/index'),
+    hidden: true
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/dashboard',
@@ -43,40 +48,12 @@ export const constantRoutes = [
     }]
   },
   {
-    path: '/login',
-    component: () => import('@/views/login/index'),
-    hidden: true
-  },
-
-  {
     path: '/404',
     component: () => import('@/views/404'),
     hidden: true
   },
-  {
-    path: '/codeStore',
-    component: Layout,
-    redirect: '/codeStore/code',
-    name: 'codeStore',
-    meta: { title: '码库管理', icon: 'code' },
-    children: [
-      {
-        path: 'code',
-        name: 'code',
-        component: () => import('@/views/code/index'),
-        meta: { title: '生码管理', icon: '' }
-      },
-      {
-        path: 'coding',
-        name: 'coding',
-        component: () => import('@/views/code/waiting'),
-        meta: { title: '待生码管理', icon: '' }
-      }
-    ]
-  },
-
   // 404 page must be placed at the end !!!
-  { path: '*', redirect: '/404', hidden: true }
+  // { path: '*', redirect: '/404', hidden: true }
 ]
 
 const createRouter = () => new Router({

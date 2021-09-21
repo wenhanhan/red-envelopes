@@ -7,19 +7,20 @@ export function login_mock(data) {
     data
   })
 }
-export function login(params) {
+//登录接口
+export function login(data) {
   return request({
-    url: '/index/User/login',
-    method: 'get',
-    params
+    url: 'Ajax/Login.ashx?type=PC',
+    method: 'post',
+    data
   })
 }
-
-export function getInfo(token) {
+//查询企业授权信息
+export function getInfo(params) {
   return request({
-    url: '/vue-admin-template/user/info',
+    url: 'Ajax/AdminGetData.ashx',
     method: 'get',
-    params: { token }
+    params
   })
 }
 

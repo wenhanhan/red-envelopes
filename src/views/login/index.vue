@@ -1,9 +1,16 @@
 <template>
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-      <div class="login-title">云追溯数据平台1.0</div>
-      <el-form-item label="" style="margin-top:50px;width:80%" prop="username">
-        <el-input   v-model="loginForm.username" placeholder="请输入用户名">
+      <div class="login-title">海略科技红包平台1.0</div>
+      <el-form-item label="" style="margin-top:50px;width:80%" prop="appid">
+        <el-input   v-model="loginForm.appid" placeholder="请输入企业编号">
+          <template slot="prepend">
+            <i class="el-icon-user"></i>
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item label="" style="width:80%;margin-top:25px" prop="account">
+        <el-input   v-model="loginForm.account" placeholder="请输入用户账号">
           <template slot="prepend">
             <i class="el-icon-user"></i>
           </template>
@@ -21,7 +28,7 @@
       </el-form-item>
     </el-form>
     <div class="copy-right">
-      © 2021-present <a href="http://www.hlysj.com" target="_blank" style="color:white;">石家庄成功信息科技有限公司</a>
+      © 2021-present <a href="http://www.hlysj.com" target="_blank" style="color:white;">石家庄海略科技有限公司</a>
     </div>
   </div>
 </template>
@@ -32,28 +39,37 @@ import { validUsername } from '@/utils/validate'
 export default {
   name: 'Login',
   data() {
-    const validateUsername = (rule, value, callback) => {
+    const validateAccount = (rule, value, callback) => {
       if (!validUsername(value)) {
-        callback(new Error('请输入用户名'))
+        callback(new Error('请输入用户账号'))
       } else {
         callback()
       }
     }
     const validatePassword = (rule, value, callback) => {
-      if (value.length < 6||!value) {
-        callback(new Error('请输入6位用户密码'))
+      if (value.length < 3||!value) {
+        callback(new Error('请输入3位用户密码'))
+      } else {
+        callback()
+      }
+    }
+    const validateAppid = (rule, value, callback) => {
+      if (value.length < 5||!value) {
+        callback(new Error('请输入6位企业编号'))
       } else {
         callback()
       }
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: ''
+        appid: '10098',
+        password: '',
+        account:''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', validator: validateUsername }],
-        password: [{ required: true, trigger: 'blur', validator: validatePassword }]
+        appid: [{ required: true, trigger: 'blur', validator: validateAppid }],
+        account: [{ required: true, trigger: 'blur', validator: validateAccount }],
+        password: [{ required: true, trigger: 'blur', validator: validatePassword }],
       },
       loading: false,
       passwordType: 'password',
@@ -74,10 +90,10 @@ export default {
         if (valid) {
           this.loading = true
           this.$store.dispatch('user/login', this.loginForm).then((data) => {
-            console.log(data)
-            if(data.code!=200){
-              this.$message.error(data.msg)
+            if(data.errcode!="0"){
+              this.$message.error(data.errmsg)
             }else{
+
             this.$router.push({ path: this.redirect || '/' })
             this.loading = false
             }
@@ -100,7 +116,7 @@ export default {
 .login-container {
   min-height: 100%;
   width: 100%;
-  background: url("../../assets/bg-smooth.png");
+  // background: url("../../assets/bg-smooth.png");
   background-size:100% 100%;
   position:fixed;
   overflow: hidden;
@@ -111,7 +127,7 @@ export default {
     max-width: 100%;
     margin: 0 auto;
     right: 10%;
-    bottom: 30%;
+    bottom: 25%;
     display: flex;
     flex-direction: column;
     align-items: center;

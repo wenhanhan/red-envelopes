@@ -8,7 +8,7 @@ import getPageTitle from '@/utils/get-page-title'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
 
-const whiteList = ['/login','/dashboard'] // no redirect whitelist
+const whiteList = ['/login'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
   // start progress bar
@@ -19,7 +19,6 @@ router.beforeEach(async(to, from, next) => {
 
   // determine whether the user has logged in
   const hasToken = getToken()
-
   if (hasToken) {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
@@ -28,6 +27,7 @@ router.beforeEach(async(to, from, next) => {
     } else {
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo) {
+        console.log(to)
         next()
       } else {
         try {
@@ -36,7 +36,9 @@ router.beforeEach(async(to, from, next) => {
             //拉取新的路由列表
             const roles=res.roles;
             store.dispatch('GenerateRoutes',{roles}).then(accessRoutes=>{
+              console.log(accessRoutes)
               router.addRoutes(accessRoutes);//动态添加可访问路由表
+              console.log(router)
               next({...to,replace:true})
             })
           })

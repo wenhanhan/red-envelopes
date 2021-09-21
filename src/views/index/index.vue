@@ -185,9 +185,9 @@ export default {
     }
   },
   created() {
-     getRouters().then(res=>{
-        console.log(res)
-      })
+    //  getRouters().then(res=>{
+    //     console.log(res)
+    //   })
   },
   filters:{
     

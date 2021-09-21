@@ -23,10 +23,18 @@ function endLoading(){
 }
 
 axios.defaults.headers['Content-Type']='application/json;charset=utf-8'
+// axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+axios.defaults.transformRequest = [function (data) {
+    let ret = ''
+    for (let it in data) {
+      ret += encodeURIComponent(it) + '=' + encodeURIComponent(data[it]) + '&'
+    }
+    return ret
+}]
 //创建axios实例
 const service=axios.create({
     baseURL:process.env.VUE_APP_BASE_API,
-    timeout:45000*5
+    timeout:45000
 })
 //request拦截器
 service.interceptors.request.use(
@@ -37,6 +45,9 @@ service.interceptors.request.use(
       if (getToken() && !isToken) {
             config.headers['Authorization'] = 'Bearer ' + getToken()
         }
+      if (config.method === 'post') {
+        config.headers['Content-Type'] = 'application/x-www-form-urlencoded;charset=utf-8'
+      }
       return config
     },
     error=>{

@@ -6,7 +6,9 @@ const getDefaultState = () => {
   return {
     token: getToken(),
     name: '',
-    avatar: ''
+    avatar: '',
+    loginName:'',
+    authInfo:{}
   }
 }
 
@@ -22,21 +24,28 @@ const mutations = {
   SET_NAME: (state, name) => {
     state.name = name
   },
+  SET_LOGINNAME:(state,name)=>{
+    state.loginName=name
+  },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+  },
+  SET_AUTHINFO:(state,authInfo)=>{
+    state.authInfo=authInfo
   }
 }
 
 const actions = {
   // user login
   login({ commit }, userInfo) {
-    const { username, password } = userInfo
+    const { appid, account,password} = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        if(response.code==200){
-          const { data} = response
-          commit('SET_TOKEN', data.token)
-          setToken(data.token)
+      login({ appid: appid.trim(), account: account.trim(),password: password }).then(response => {
+        if(response.errcode=="0"){
+          // const { data} = response 无效解构
+          commit('SET_LOGINNAME',response.LoginName)
+          commit('SET_TOKEN', response.LoginName)
+          setToken('admin')
           resolve(response)
         }else{
           resolve(response)
@@ -50,18 +59,13 @@ const actions = {
   // get user info
   getInfo({ commit, state }) {
     return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
+      getInfo({type:'Public_GetSystemInfo'}).then(response => {
+        if (!response) {
           return reject('Verification failed, please Login again.')
         }
-
-        const { name, avatar } = data
-
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        resolve(data)
+        commit('SET_NAME', response.companyname)
+        commit('SET_AUTHINFO', response)
+        resolve(response)
       }).catch(error => {
         reject(error)
       })

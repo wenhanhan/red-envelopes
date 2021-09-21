@@ -4,8 +4,9 @@
 
     <breadcrumb class="breadcrumb-container" />
 
-    <div class="right-menu" @click="logout">
-      <span><i class="el-icon-switch-button" style="margin-right:5px"></i>退出</span>
+    <div class="right-menu">
+      <span>| 授权企业：{{authInfo.companyname}} | 当前用户：管理员 |</span>
+      <span @click="logout"><i class="el-icon-switch-button" style="margin:0 10px;margin-left:20px"></i>退出</span>
     </div>
   </div>
 </template>
@@ -23,7 +24,8 @@ export default {
   computed: {
     ...mapGetters([
       'sidebar',
-      'avatar'
+      'avatar',
+      'authInfo'
     ])
   },
   methods: {
@@ -31,7 +33,8 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     async logout() {
-      await this.$store.dispatch('user/logout')
+      // await this.$store.dispatch('user/logout')
+      await this.$store.dispatch('user/resetToken')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     }
   }
@@ -68,6 +71,7 @@ export default {
     height: 100%;
     line-height: 50px;
     cursor: pointer;
+    font-size: 14px;
     margin-right: 20px;
     &:focus {
       outline: none;
