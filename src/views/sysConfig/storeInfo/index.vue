@@ -25,7 +25,6 @@
             @current-change="handleCurrentChange"
             size="medium"
             class="trace-table"
-            empty-text="--"
             style="width: 100%">
             <el-table-column prop="DepotNum" align="center" label="仓库编号"></el-table-column>
             <el-table-column prop="DepotName" align="center" label="仓库名称"></el-table-column>
@@ -60,8 +59,6 @@
 <script>
 import { getSystemInfo } from '@/api/sysFun/system'
 import {deleteStore} from '@/api/sysFun/store'
-import { get } from 'js-cookie'
-import { getList } from '@/api/company'
 export default {
     data(){
         return{

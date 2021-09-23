@@ -9,6 +9,8 @@ import Pagination from "@/components/Pagination";//引入封装分页组件
 import * as echarts from 'echarts';
 import '@/styles/index.scss' // global css
 import md5 from 'js-md5';
+// 富文本组件
+import Editor from "@/components/Editor"
 
 Vue.prototype.$md5 = md5;//全局注册
 Vue.prototype.$echarts = echarts//全局引入echarts
@@ -33,6 +35,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 //分页组件 全局注册
 Vue.component('Pagination',Pagination)
+Vue.component('Editor', Editor)
 
 // set ElementUI lang to EN
 // Vue.use(ElementUI, { locale })

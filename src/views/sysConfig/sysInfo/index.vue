@@ -7,7 +7,6 @@
             stripe
             size="medium"
             class="trace-table"
-            empty-text="--"
             style="width: 100%">
              <el-table-column prop="SetTitle" align="center" label="设置类型" width="200px" ></el-table-column>
              <el-table-column prop="SetText" align="center" label="设置说明" ></el-table-column>

@@ -25,20 +25,19 @@
             @current-change="handleCurrentChange"
             size="medium"
             class="trace-table"
-            empty-text="--"
             style="width: 100%">
             <el-table-column prop="RoleName" align="center" label="部门名称"></el-table-column>
             <el-table-column show-overflow-tooltip prop="RoleValue" align="center" label="权限信息"></el-table-column>
             <el-table-column prop="CreateTime" align="center" label="创建时间"></el-table-column>
       </el-table>
-      <el-dialog :title="dialogTitle" :visible.sync="roleDialog" width="40%" @close="roleDialog=false">
+      <el-dialog :title="dialogTitle" :visible.sync="roleDialog" width="50%" @close="roleDialog=false">
         <el-form :model="roleForm" ref="roleForm" label-width="100px">
             <el-form-item label="" prop="_name" label-width="30px">
                 <el-input size="small" placeholder="输入创建新角色名称" style="width:90%" v-model="roleForm._name" autocomplete="off"></el-input>
             </el-form-item>
             <el-tabs type="border-card" v-model="activeName">
                 <el-tab-pane v-for="(it,idx) in tabOption" :key="idx" :label="it.label" :name="it.name">
-                    <el-form-item label="活动性质">
+                    <el-form-item label="" label-width="0">
                         <el-checkbox-group v-model="roles">
                             <el-checkbox v-for="(item,index) in filterRole(it.name)" :key="index" :label="item.FunctionText" :name="String(item.Id)"></el-checkbox>
                         </el-checkbox-group>
@@ -55,8 +54,7 @@
 </template>
 
 <script>
-import { getSystemInfo,getCheckInfo } from '@/api/sysFun/system'
-import {deleteStore} from '@/api/sysFun/store'
+import { getSystemInfo,getCheckInfo,setQueryInfo } from '@/api/sysFun/system'
 export default {
     data(){
         return{
@@ -136,30 +134,45 @@ export default {
         addRole(){
             this.roleDialog=true,
             this.roleForm={}
+            this.roleForm._id=0
             this.dialogTitle='添加角色'
         },
-        updateStore(){
+        updateRole(){
             if(!this.currentRow) return
             this.roleDialog=true,
             this.dialogTitle='修改角色'
             var ob=Object.assign({},this.currentRow)
-            this.storeForm._id=ob.Id
-            this.storeForm._num=ob.DepotNum
-            this.storeForm._name=ob.DepotName
-            this.storeForm._remark=ob.DepotRemark
-            this.storeForm._address=ob.DepotAddress
+            this.roleForm._id=ob.Id
+            this.roleForm._name=ob.RoleName
+            var rolesId=ob.RoleValue.split(',')
+            var roleName=[]
+            rolesId.forEach((item,index)=>{
+                this.allRoles.forEach((it,idx)=>{
+                    if(item==it.Id){
+                        roleName.push(it.FunctionText)
+                    }
+                })
+            })
+            this.roles=roleName
         },
         save(){
             var arr=Object.assign({},this.roleForm)
-            console.log(this.roles)
-            return;
+            var rolesId=[]
+            this.roles.forEach((item,index)=>{
+                this.allRoles.forEach((it,idx)=>{
+                    if(item==it.FunctionText){
+                        rolesId.push(it.Id)
+                    }
+                })
+            })
+            arr._value=rolesId.join(',')
             if(Number(arr._id)==0){
-                //新增
+                //新增角色
                 arr._type=1
-                deleteStore(arr,'Base_Depot').then(res=>{
+                setQueryInfo(arr,'Base_UserRole').then(res=>{
                     if(res.errcode==0){
                         this.$message.success('新增成功')
-                        this.storeDialog=false
+                        this.roleDialog=false
                         this.getList()
                     }else{
                         this.$message.error(res.errmsg)
@@ -168,10 +181,10 @@ export default {
             }else{
                 //修改
                 arr._type=2
-                deleteStore(arr,'Base_Depot').then(res=>{
+                setQueryInfo(arr,'Base_UserRole').then(res=>{
                     if(res.errcode==0){
                         this.$message.success('修改成功')
-                        this.storeDialog=false
+                        this.roleDialog=false
                         this.getList()
                     }else{
                         this.$message.error(res.errmsg)
@@ -179,18 +192,20 @@ export default {
                 })
             }
         },
-        deleStore(){
+        deleRole(){
             var arr={
                 _type:3,
-                _id:this.currentRow.Id
+                _id:this.currentRow.Id,
+                _name:1,
+                _value:1
             }
             if(!this.currentRow) return
-            this.$confirm(`确定删除${this.currentRow.DepotName}仓库?`, '提示', {
+            this.$confirm(`确定删除${this.currentRow.RoleName}角色?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
                 }).then(() => {
-                    deleteStore(arr,'Base_Depot').then(res=>{
+                    setQueryInfo(arr,'Base_UserRole').then(res=>{
                         if(res.errcode==0){
                             this.$message.success('删除成功')
                             this.getList()
@@ -202,7 +217,6 @@ export default {
             });
         },
         handleCurrentChange(val) {
-            console.log(val)
             this.currentRow = val;
         },
     }

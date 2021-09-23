@@ -35,6 +35,13 @@ export function getCheckInfo(data,type){
         data
     })
 }
+export function getPdaModel(data,type,search_type){
+    return request({
+        url:"Ajax/AdminGetData.ashx?type="+type+'&search_type='+search_type,
+        method:'post',
+        data
+    })
+}
 export function setQueryInfo(data,type){
     return request({
         url:"Ajax/AdminPostData.ashx?type="+type,
