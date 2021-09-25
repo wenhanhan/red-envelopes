@@ -72,3 +72,10 @@ div:focus {
   align-items: center;
   // border-bottom: 1px solid #eeeeee;
 }
+//弹窗底部按钮
+.dialog-footer{
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+}

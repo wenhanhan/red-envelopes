@@ -33,7 +33,7 @@
             <el-table-column prop="DepotRemark" align="center" label="备注说明"></el-table-column>
             <el-table-column prop="CreateTime" align="center" label="创建日期"></el-table-column>
       </el-table>
-      <el-dialog :title="dialogTitle" :visible.sync="storeDialog" width="40%" @close="storeDialog=false">
+      <el-dialog :title="dialogTitle" :visible.sync="storeDialog" width="30%" @close="storeDialog=false">
         <el-form :model="storeForm" ref="storeForm" label-width="100px">
             <el-form-item label="仓库编号" prop="_num">
                 <el-input size="small" style="width:90%" v-model="storeForm._num" autocomplete="off"></el-input>

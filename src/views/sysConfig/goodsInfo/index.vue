@@ -3,7 +3,7 @@
       <div class="tab-bar">
         <el-form ref="queryForm" :model="queryForm" label-width="80px" :inline="true" size="small">
             <el-form-item label="商品类别" prop="search_type">
-                <el-select style="width:90%" size="small" v-model="queryForm.search_type" placeholder="请选择商品类别">
+                <el-select size="small" v-model="queryForm.search_type" placeholder="请选择商品类别">
                     <el-option
                         v-for="item in typeOptions"
                         :key="item.ID"
@@ -23,19 +23,7 @@
       </div>
       <el-row style="margin-bottom:15px" type="flex" justify="start">
             <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addAccount" size="mini">新增商品</el-button>
-            <el-dropdown style="margin-left:10px" @command="handleCommand">
-                <el-button size="mini" type="primary">
-                    更多操作<i class="el-icon-arrow-down el-icon--right"></i>
-                </el-button>
-                <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item icon="el-icon-files" command="type" divided>商品类别</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-link" divided>商品参数</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-upload" divided>导入商品</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-download" divided>导出商品</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-s-order" divided>图文介绍</el-dropdown-item>
-                    <el-dropdown-item icon="el-icon-picture" divided>商品图片</el-dropdown-item>
-                </el-dropdown-menu>
-            </el-dropdown>
+            <el-button size="mini" type="primary" icon="el-icon-s-operation" @click="typeManage">类别管理</el-button>
       </el-row>
       <el-table
             :data="tableData"
@@ -143,6 +131,9 @@
                 <el-button icon="el-icon-refresh" @click="reset('typeForm')">重置</el-button>
             </el-form-item>
         </el-form>
+        <el-row style="margin-bottom:15px" type="flex" justify="start">
+            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addType" size="mini">新增</el-button>
+        </el-row>
         <el-table
             :data="typeData"
             :header-cell-style="{background:'#FAFAFA',color:'#606266',height:'50px'}"
@@ -169,6 +160,22 @@
               </template>
             </el-table-column>
         </el-table>
+        <!-- 内部dialog -->
+        <el-dialog
+            width="25%"
+            :title="typeDialogTitle"
+            :visible.sync="addTypeDialog"
+            append-to-body>
+            <el-form :model="addTypeForm" ref="addTypeForm" label-width="100px">
+                <el-form-item label="类别名称" prop="_value">
+                    <el-input style="width:90%" size="small" v-model="addTypeForm._value" placeholder="请输入类别名称"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button size="medium"  type="primary" @click="saveType('addTypeForm')">确 定</el-button>
+                <el-button size="medium" style="margin-left:60px" @click="addTypeDialog= false">取 消</el-button>
+            </div>
+        </el-dialog>
       </el-dialog>
   </div>
 </template>
@@ -191,6 +198,9 @@ export default {
                 search_type:7,
                 type:'Base_LoadSystemParm'
             },
+            addTypeForm:{
+                _value:''
+            },
             goodsForm:{
                 _class:'',
                 _name:'',
@@ -208,8 +218,10 @@ export default {
             tableData:[],
             typeData:[],
             dialogTitle:'',
+            typeDialogTitle:"",
             goodsDialog:false,
-            typeDialog:false
+            typeDialog:false,
+            addTypeDialog:false
         }
     },
     created(){
@@ -298,7 +310,6 @@ export default {
             }
         },
         deleAccount(row){
-            console.log(row)
             var arr={
                 _type:3,
                 _id:row.Id,
@@ -319,17 +330,75 @@ export default {
                 }).catch(() => {    
             });
         },
+        addType(){
+            this.addTypeForm={}
+            this.addTypeForm._id=0
+            this.addTypeForm._systype=7
+            this.typeDialogTitle="新增类别"
+            this._systips='商品类别'
+            this.addTypeDialog=true
+        },
         updateType(row){
-
+            this.typeDialogTitle="修改类别"
+            this.addTypeDialog=true
+            var ob=Object.assign({},row)
+            this.addTypeForm._id=ob.Id
         },
-        deleType(row){
-
-        },
-        handleCommand(command) {
-            if(command=='type'){
-                this.typeDialog=true
+        saveType(){
+            var arr=Object.assign({},this.addTypeForm)
+            if(Number(arr._id)==0){
+                //新增
+                arr._type=1
+                setQueryInfo(arr,'Base_Dictionary').then(res=>{
+                    if(res.errcode==0){
+                        this.$message.success('新增成功')
+                        this.addTypeDialog=false
+                        this.getTypeData()
+                    }else{
+                        this.$message.error(res.errmsg)
+                    }
+                })
+            }else{
+                //修改
+                arr._type=2
+                setQueryInfo(arr,'Base_Dictionary').then(res=>{
+                    if(res.errcode==0){
+                        this.$message.success('修改成功')
+                        this.addTypeDialog=false
+                        this.getTypeData()
+                    }else{
+                        this.$message.error(res.errmsg)
+                    }
+                })
             }
         },
+        deleType(row){
+            var arr={
+                _type:3,
+                _id:row.ID,
+                _systype:7,
+                _systips:'',
+                _value:0
+            }
+            this.$confirm(`确定删除${row.SysValue}类别吗?`, '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+                }).then(() => {
+                    setQueryInfo(arr,'Base_Dictionary').then(res=>{
+                        if(res.errcode==0){
+                            this.$message.success('删除成功')
+                            this.getTypeData()
+                        }else{
+                            this.$message.error('请联系管理员')
+                        }
+                    })
+                }).catch(() => {    
+            });
+        },
+        typeManage(){
+            this.typeDialog=true
+        }
     }
 }
 </script>

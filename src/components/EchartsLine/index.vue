@@ -45,6 +45,11 @@ export default {
            echarts:'' 
         }
     },
+    watch:{
+        xData(val,old){
+            this.initEchartsLine();
+        }
+    },
     mounted(){
       this.initEchartsLine();
     }, 
