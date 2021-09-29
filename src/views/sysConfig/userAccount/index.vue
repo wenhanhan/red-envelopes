@@ -11,10 +11,8 @@
             </el-form-item>
         </el-form>
       </div>
-      <el-row style="margin-bottom:15px" type="flex" justify="end">
-            <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addAccount" size="mini">新增账号</el-button>
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateAccount">修改账号</el-button>
-            <el-button type="danger" icon="el-icon-delete" @click="deleAccount" size="mini">删除账号</el-button>
+      <el-row style="margin-bottom:15px" type="flex" justify="start">
+          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addAccount" size="mini">新增账号</el-button>
       </el-row>
       <el-table
             :data="tableData"
@@ -22,7 +20,6 @@
             border
             stripe
             highlight-current-row
-            @current-change="handleCurrentChange"
             size="medium"
             class="trace-table"
             style="width: 100%">
@@ -33,18 +30,28 @@
             <el-table-column prop="Remark" align="center" label="备注信息"></el-table-column>
             <el-table-column prop="PDATypeValue" align="center" label="PDA模式"></el-table-column>
             <el-table-column prop="CreateTime" align="center" label="添加时间"></el-table-column>
-            <el-table-column label="操作" align="center" fixed="right" width="200px">
+            <el-table-column label="操作" align="center" fixed="right" width="300px">
               <template slot-scope="scope">
                 <el-button
                 size="mini"
                 icon="el-icon-key"
                 type="primary"
-                @click="handleReset(scope.row)">重置密码</el-button>
+                @click="handleReset(scope.row)">重置</el-button>
+                <el-button
+                size="mini"
+                icon="el-icon-edit"
+                type="primary"
+                @click="updateAccount(scope.row)">修改</el-button>
+                <el-button
+                size="mini"
+                icon="el-icon-delete"
+                type="danger"
+                @click="deleAccount(scope.row)">删除</el-button>
               </template>
             </el-table-column>
       </el-table>
       <el-dialog :title="dialogTitle" :visible.sync="accountDialog" width="30%" @close="accountDialog=false">
-        <el-form :model="accountForm" ref="accountForm" label-width="100px">
+        <el-form :model="accountForm" ref="accountForm" label-width="100px" :rules="rule">
             <el-form-item label="用户账号" prop="_account">
                 <el-input size="small" style="width:90%" v-model="accountForm._account" autocomplete="off"></el-input>
             </el-form-item>
@@ -86,7 +93,7 @@
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
-            <el-button size="medium"  type="primary" @click="save('storeForm')">确 定</el-button>
+            <el-button size="medium"  type="primary" @click="save('accountForm')">确 定</el-button>
             <el-button size="medium" style="margin-left:60px" @click="accountDialog= false">取 消</el-button>
         </div>
       </el-dialog>
@@ -125,9 +132,25 @@ export default {
                 value:'0'
               }
             ],
+            rule:{
+              _account:[
+                { required: true, message: '请设置登录系统的用户帐号', trigger: 'change' }
+              ],
+              _name:[
+                { required: true, message: '请输入帐号使用者的名称', trigger: 'change' }
+              ],
+              _roleid:[
+                { required: true, message: '请选择所属部门', trigger: 'change' }
+              ],
+              _state:[
+                { required: true, message: '请选择账号状态', trigger: 'change' }
+              ],
+              _pda:[
+                { required: true, message: '请选择PDA模式', trigger: 'change' }
+              ]
+            },
             pdaOptions:[],
             tableData:[],
-            currentRow:undefined,
             dialogTitle:'',
             accountDialog:false
         }
@@ -187,11 +210,10 @@ export default {
             }).catch(() => {    
             });
         },
-        updateAccount(){
-            if(!this.currentRow) return
+        updateAccount(row){
             this.accountDialog=true,
             this.dialogTitle='修改账号'
-            var ob=Object.assign({},this.currentRow)
+            var ob=Object.assign({},row)
             this.accountForm._id=ob.Id
             this.accountForm._name=ob.HoldersName
             this.accountForm._account=ob.UserAccount
@@ -200,47 +222,52 @@ export default {
             this.accountForm._roleid=ob.RoleId
             this.accountForm._state=ob.UserState
         },
-        save(){
-            var arr=Object.assign({},this.accountForm)
-            if(Number(arr._id)==0){
-                //新增
-                arr._type=1
-                setQueryInfo(arr,'Base_UserAccount').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('新增成功')
-                        this.accountDialog=false
-                         this.$alert(res.errmsg, '提示', {
-                          confirmButtonText: '确定',
-                          center: true,
-                        });
-                        this.getList()
-                    }else{
-                        this.$message.error(res.errmsg)
-                    }
-                })
+        save(formName){
+          this.$refs[formName].validate((valid) => {
+            if(valid){
+              var arr=Object.assign({},this.accountForm)
+              if(Number(arr._id)==0){
+                  //新增
+                  arr._type=1
+                  setQueryInfo(arr,'Base_UserAccount').then(res=>{
+                      if(res.errcode==0){
+                          this.$message.success('新增成功')
+                          this.accountDialog=false
+                          this.$alert(res.errmsg, '提示', {
+                            confirmButtonText: '确定',
+                            center: true,
+                          });
+                          this.getList()
+                      }else{
+                          this.$message.error(res.errmsg)
+                      }
+                  })
+              }else{
+                  //修改
+                  arr._type=2
+                  setQueryInfo(arr,'Base_UserAccount').then(res=>{
+                      if(res.errcode==0){
+                          this.$message.success('修改成功')
+                          this.accountDialog=false
+                          this.getList()
+                      }else{
+                          this.$message.error(res.errmsg)
+                      }
+                  })
+              }
             }else{
-                //修改
-                arr._type=2
-                setQueryInfo(arr,'Base_UserAccount').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('修改成功')
-                        this.accountDialog=false
-                        this.getList()
-                    }else{
-                        this.$message.error(res.errmsg)
-                    }
-                })
+              return false;
             }
+          })
         },
-        deleAccount(){
+        deleAccount(row){
             var arr={
                 _type:3,
-                _id:this.currentRow.Id,
+                _id:row.Id,
                 _roleid:0,
                 _state:1
             }
-            if(!this.currentRow) return
-            this.$confirm(`确定删除${this.currentRow.UserAccount}账号?`, '提示', {
+            this.$confirm(`确定删除${row.UserAccount}账号?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -255,10 +282,6 @@ export default {
                     })
                 }).catch(() => {    
             });
-        },
-        handleCurrentChange(val) {
-            console.log(val)
-            this.currentRow = val;
         },
     }
 }

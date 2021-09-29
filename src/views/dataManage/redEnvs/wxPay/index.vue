@@ -9,7 +9,7 @@
                 <div class="card-box-item">
                   <span>累计支出红包</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.ShowCount.allcount}}</div>
@@ -22,7 +22,7 @@
                 <div class="card-box-item">
                   <span>本年支出红包</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.ShowCount.yearcount}}</div>
@@ -35,7 +35,7 @@
                 <div class="card-box-item">
                   <span>本月支出红包</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.ShowCount.monthcount}}</div>
@@ -48,7 +48,7 @@
                 <div class="card-box-item">
                   <span>昨日支出红包</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.ShowCount.yesterdaycount}}</div>
@@ -118,7 +118,7 @@ export default {
                 }
             ],
             type:1,
-            baseUrl:'http://h.8vv.cn/',
+            baseUrl:'http://m.8vv.cn/',
             xData:[],
             dataList:[],
             seriesType:'line',

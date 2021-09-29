@@ -6,6 +6,13 @@ export function getWeixinFans(params){
         params
     })
 }
+export function recieve(params){
+    return request({
+        url:"Ajax/RedPackPostData.ashx",
+        method:'get',
+        params
+    })
+}
 export function addWeixinFans(data,type){
     return request({
         url:"Ajax/RedPackPostData.ashx?type="+type,

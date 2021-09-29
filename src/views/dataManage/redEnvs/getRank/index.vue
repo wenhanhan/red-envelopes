@@ -74,7 +74,7 @@ export default {
                 search_text:100,
                 time:[]
             },
-            baseUrl:'http://h.8vv.cn/',
+            baseUrl:'http://m.8vv.cn/',
             tableData:[],
             product:[]
         }

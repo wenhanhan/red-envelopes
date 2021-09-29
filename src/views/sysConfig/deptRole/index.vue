@@ -11,28 +11,40 @@
             </el-form-item>
         </el-form>
       </div>
-      <el-row style="margin-bottom:15px" type="flex" justify="end">
+      <el-row style="margin-bottom:15px" type="flex" justify="start">
             <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addRole" size="mini">新增角色</el-button>
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateRole">修改角色</el-button>
-            <el-button type="danger" icon="el-icon-delete" @click="deleRole" size="mini">删除角色</el-button>
+            <!-- <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateRole">修改角色</el-button>
+            <el-button type="danger" icon="el-icon-delete" @click="deleRole" size="mini">删除角色</el-button> -->
       </el-row>
       <el-table
             :data="tableData"
             :header-cell-style="{background:'#FAFAFA',color:'#606266',height:'50px'}"
             border
             stripe
-            highlight-current-row
-            @current-change="handleCurrentChange"
             size="medium"
             class="trace-table"
             style="width: 100%">
             <el-table-column prop="RoleName" align="center" label="部门名称"></el-table-column>
             <el-table-column show-overflow-tooltip prop="RoleValue" align="center" label="权限信息"></el-table-column>
             <el-table-column prop="CreateTime" align="center" label="创建时间"></el-table-column>
+            <el-table-column label="操作" align="center" fixed="right" width="200px">
+              <template slot-scope="scope">
+                <el-button
+                size="mini"
+                icon="el-icon-edit"
+                type="primary"
+                @click="updateRole(scope.row)">修改</el-button>
+                <el-button
+                size="mini"
+                icon="el-icon-delete"
+                type="danger"
+                @click="deleRole(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
       </el-table>
       <el-dialog :title="dialogTitle" :visible.sync="roleDialog" width="50%" @close="roleDialog=false">
-        <el-form :model="roleForm" ref="roleForm" label-width="100px">
-            <el-form-item label="" prop="_name" label-width="30px">
+        <el-form :model="roleForm" ref="roleForm" label-width="100px" :rules="rule"> 
+            <el-form-item label="角色名称" prop="_name" label-width="100px">
                 <el-input size="small" placeholder="输入创建新角色名称" style="width:90%" v-model="roleForm._name" autocomplete="off"></el-input>
             </el-form-item>
             <el-tabs type="border-card" v-model="activeName">
@@ -73,9 +85,11 @@ export default {
             roles:[],
             allRoles:[],
             tableData:[],
-            currentRow:undefined,
             dialogTitle:'',
             roleDialog:false,
+            rule:{
+                _name:{ required: true, message: '请输入部门角色名称.', trigger: 'change' }
+            },
             tabOption:[
                 {
                     label:'系统功能管理',
@@ -137,11 +151,10 @@ export default {
             this.roleForm._id=0
             this.dialogTitle='添加角色'
         },
-        updateRole(){
-            if(!this.currentRow) return
+        updateRole(row){
             this.roleDialog=true,
             this.dialogTitle='修改角色'
-            var ob=Object.assign({},this.currentRow)
+            var ob=Object.assign({},row)
             this.roleForm._id=ob.Id
             this.roleForm._name=ob.RoleName
             var rolesId=ob.RoleValue.split(',')
@@ -156,6 +169,10 @@ export default {
             this.roles=roleName
         },
         save(){
+            if(!this.roleForm._name){
+                this.$message.warning('请输入部门角色名称.')
+                return;
+            }
             var arr=Object.assign({},this.roleForm)
             var rolesId=[]
             this.roles.forEach((item,index)=>{
@@ -165,6 +182,10 @@ export default {
                     }
                 })
             })
+            if(rolesId.length==0){
+               this.$message.warning('请选择具体角色.')
+               return; 
+            }
             arr._value=rolesId.join(',')
             if(Number(arr._id)==0){
                 //新增角色
@@ -192,15 +213,14 @@ export default {
                 })
             }
         },
-        deleRole(){
+        deleRole(row){
             var arr={
                 _type:3,
-                _id:this.currentRow.Id,
+                _id:row.Id,
                 _name:1,
                 _value:1
             }
-            if(!this.currentRow) return
-            this.$confirm(`确定删除${this.currentRow.RoleName}角色?`, '提示', {
+            this.$confirm(`确定删除${row.RoleName}角色?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -215,10 +235,7 @@ export default {
                     })
                 }).catch(() => {    
             });
-        },
-        handleCurrentChange(val) {
-            this.currentRow = val;
-        },
+        }
     }
 }
 </script>

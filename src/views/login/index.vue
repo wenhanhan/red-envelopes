@@ -1,7 +1,7 @@
 <template>
   <div class="login-container">
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
-      <div class="login-title">海略科技红包平台1.0</div>
+      <div class="login-title">海略科技红包平台</div>
       <el-form-item label="" style="margin-top:50px;width:80%" prop="appid">
         <el-input   v-model="loginForm.appid" placeholder="请输入企业编号">
           <template slot="prepend">
@@ -28,7 +28,7 @@
       </el-form-item>
     </el-form>
     <div class="copy-right">
-      © 2021-present <a href="http://www.hlysj.com" target="_blank" style="color:white;">石家庄海略科技有限公司</a>
+      © 2021-present <a href="http://www.hlysj.com" target="_blank" style="color:white;">石家庄市海略科技有限公司</a>
     </div>
   </div>
 </template>
@@ -116,7 +116,7 @@ export default {
 .login-container {
   min-height: 100%;
   width: 100%;
-  // background: url("../../assets/bg-smooth.png");
+  background: url("../../assets/bg-smooth.png");
   background-size:100% 100%;
   position:fixed;
   overflow: hidden;

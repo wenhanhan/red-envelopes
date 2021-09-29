@@ -68,7 +68,7 @@ export default {
                 search_text:'',
                 time:[]
             },
-            baseUrl:'http://h.8vv.cn/',
+            baseUrl:'http://m.8vv.cn/',
             tableData:[],
         }
     },

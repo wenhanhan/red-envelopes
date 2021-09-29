@@ -44,7 +44,7 @@ export default {
     ChinaMap 
   },
   data ()  {
-	   return {
+	  return {
 	       objectData: [{value: 2, name: '上海'}, {value:3,name: '北京'}],
          queryForm:{
           search_type:'',
@@ -74,9 +74,9 @@ export default {
       })
     },
     getProcuct(){
-        getCheckInfo({},'Base_Product_Select').then(res=>{
-            this.product=res
-        })
+      getCheckInfo({},'Base_Product_Select').then(res=>{
+          this.product=res
+      })
     },
     reset(formName){
       this.$refs[formName].resetFields();

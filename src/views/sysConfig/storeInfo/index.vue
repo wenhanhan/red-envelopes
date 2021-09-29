@@ -11,10 +11,8 @@
             </el-form-item>
         </el-form>
       </div>
-      <el-row style="margin-bottom:15px" type="flex" justify="end">
+      <el-row style="margin-bottom:15px" type="flex" justify="start">
             <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addStore" size="mini">新增仓库</el-button>
-            <el-button type="primary" icon="el-icon-edit" size="mini" @click="updateStore">修改仓库</el-button>
-            <el-button type="danger" icon="el-icon-delete" @click="deleStore" size="mini">删除仓库</el-button>
       </el-row>
       <el-table
             :data="tableData"
@@ -22,7 +20,6 @@
             border
             stripe
             highlight-current-row
-            @current-change="handleCurrentChange"
             size="medium"
             class="trace-table"
             style="width: 100%">
@@ -32,9 +29,23 @@
             <el-table-column prop="DepotAddress" align="center" label="仓库地址"></el-table-column>
             <el-table-column prop="DepotRemark" align="center" label="备注说明"></el-table-column>
             <el-table-column prop="CreateTime" align="center" label="创建日期"></el-table-column>
+            <el-table-column label="操作" align="center" fixed="right" width="200px">
+              <template slot-scope="scope">
+                <el-button
+                size="mini"
+                icon="el-icon-edit"
+                type="primary"
+                @click="updateStore(scope.row)">修改</el-button>
+                <el-button
+                size="mini"
+                icon="el-icon-delete"
+                type="danger"
+                @click="deleStore(scope.row)">删除</el-button>
+              </template>
+            </el-table-column>
       </el-table>
       <el-dialog :title="dialogTitle" :visible.sync="storeDialog" width="30%" @close="storeDialog=false">
-        <el-form :model="storeForm" ref="storeForm" label-width="100px">
+        <el-form :model="storeForm" ref="storeForm" label-width="100px" :rules="rule">
             <el-form-item label="仓库编号" prop="_num">
                 <el-input size="small" style="width:90%" v-model="storeForm._num" autocomplete="off"></el-input>
             </el-form-item>
@@ -76,8 +87,15 @@ export default {
                 _remark:'',
                 _id:0
             },
+            rule:{
+                _num:[
+                    { required: true, message: '请输入新增仓库的编号', trigger: 'change' }
+                ],
+                _name:[
+                    {required: true, message: '请输入新增仓库的名称', trigger: 'change' }
+                ]
+            },
             tableData:[],
-            currentRow:undefined,
             dialogTitle:'',
             storeDialog:false
         }
@@ -106,52 +124,56 @@ export default {
             this.storeForm._id=0
             this.dialogTitle='添加仓库'
         },
-        updateStore(){
-            if(!this.currentRow) return
+        updateStore(row){
             this.storeDialog=true,
             this.dialogTitle='修改仓库'
-            var ob=Object.assign({},this.currentRow)
+            var ob=Object.assign({},row)
             this.storeForm._id=ob.Id
             this.storeForm._num=ob.DepotNum
             this.storeForm._name=ob.DepotName
             this.storeForm._remark=ob.DepotRemark
             this.storeForm._address=ob.DepotAddress
         },
-        save(){
-            var arr=Object.assign({},this.storeForm)
-            if(Number(arr._id)==0){
-                //新增
-                arr._type=1
-                deleteStore(arr,'Base_Depot').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('新增成功')
-                        this.storeDialog=false
-                        this.getList()
+        save(formName){
+            this.$refs[formName].validate((valid) => {
+                if(valid){
+                    var arr=Object.assign({},this.storeForm)
+                    if(Number(arr._id)==0){
+                        //新增
+                        arr._type=1
+                        deleteStore(arr,'Base_Depot').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('新增成功')
+                                this.storeDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }else{
-                        this.$message.error(res.errmsg)
+                        //修改
+                        arr._type=2
+                        deleteStore(arr,'Base_Depot').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('修改成功')
+                                this.storeDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }
-                })
-            }else{
-                //修改
-                arr._type=2
-                deleteStore(arr,'Base_Depot').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('修改成功')
-                        this.storeDialog=false
-                        this.getList()
-                    }else{
-                        this.$message.error(res.errmsg)
-                    }
-                })
-            }
+                }else{
+                    return false;
+                }
+            })
         },
-        deleStore(){
+        deleStore(row){
             var arr={
                 _type:3,
-                _id:this.currentRow.Id
+                _id:row.Id
             }
-            if(!this.currentRow) return
-            this.$confirm(`确定删除${this.currentRow.DepotName}仓库?`, '提示', {
+            this.$confirm(`确定删除${row.DepotName}仓库?`, '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
                 type: 'warning'
@@ -166,10 +188,6 @@ export default {
                     })
                 }).catch(() => {    
             });
-        },
-        handleCurrentChange(val) {
-            console.log(val)
-            this.currentRow = val;
         },
     }
 }

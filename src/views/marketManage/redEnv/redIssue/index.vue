@@ -77,16 +77,16 @@
         @pagination="getList"
         />
     <el-dialog :title="issueTitle" :visible.sync="issueDialog" width="40%"  @close="issueDialog=false">
-        <el-form :model="issueForm" ref="issueForm" label-width="100px">
+        <el-form :model="issueForm" ref="issueForm" label-width="100px" :rules="rule">
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="起始序号" prop="_start">
-                        <el-input size="small" v-model="issueForm._start" autocomplete="off"></el-input>
+                        <el-input size="small" v-model.number="issueForm._start" autocomplete="off"></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
                     <el-form-item label="终止序号" prop="_end">
-                        <el-input size="small" v-model="issueForm._end" autocomplete="off"></el-input>
+                        <el-input size="small" v-model.number="issueForm._end" autocomplete="off"></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
@@ -200,12 +200,12 @@ export default {
                 _money:'',
                 _getweixintype:'',
                 _redpacktype:'',
-                _productid:'',
+                _productid:undefined,
                 _maxdate:'',
                 _remark:'',
                 _startint:'',
                 _endint:'',
-                _totalpeople:3
+                _totalpeople:undefined
             },
             prizeForm:{
                 IssuedCount:'',
@@ -213,7 +213,38 @@ export default {
                 RedPackMoney:'',
                 DetailId:0
             },
-            baseUrl:'http://h.8vv.cn/',
+            rule:{
+                _start:[
+                    { required: true, message: '请输入发行的起始序号', trigger: 'change' },
+                    { type: 'number', message: '起始序号必须为数字值'}
+                ],
+                _end:[
+                    { required: true, message: '请输入发行的终止序号', trigger: 'change' },
+                    { type: 'number', message: '终止序号必须为数字值'}
+                ],
+                _redpacktype:[
+                    { required: true, message: '请选择红包类型', trigger: 'change' }
+                ],
+                _money:[
+                    { required: true, message: '请输入发行红包的金额', trigger: 'change' },
+                ],
+                _getweixintype:[
+                    { required: true, message: '请选择用户类型', trigger: 'change' },
+                ],
+                _totalpeople:[
+                    { required: true, message: '请填写裂变次数', trigger: 'change' },
+                ],
+                _startint:[
+                    { required: true, message: '请填写最小金额', trigger: 'change' },
+                ],
+                _endint:[
+                    { required: true, message: '请填写最大金额', trigger: 'change' },
+                ],
+                _maxdate:[
+                    { required: true, message: '请选择截止日期', trigger: 'change' },
+                ]
+            },
+            baseUrl:'http://m.8vv.cn/',
             issueModel:[
                 {
                     SysValue:'系统随机',
@@ -335,35 +366,41 @@ export default {
                 }).catch(() => {    
             });
         },
-        save(){
-            var arr=Object.assign({},this.issueForm)
-            if(Number(arr._id)==0){
-                //新增
-                addWeixinFans(arr,'PromotersIssued').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('新增成功')
-                        this.issueDialog=false
-                        this.getList()
+        save(formName){
+            this.$refs[formName].validate((valid) => {
+                if(valid){
+                    var arr=Object.assign({},this.issueForm)
+                    if(Number(arr._id)==0){
+                        //新增
+                        addWeixinFans(arr,'PromotersIssued').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('新增成功')
+                                this.issueDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }else{
-                        this.$message.error(res.errmsg)
+                        //修改
+                        var role=this.role.filter(item=>{
+                            return item.SysValue==arr._getweixintype
+                        })
+                        arr._getweixintype=role[0]['ID']
+                        addWeixinFans(arr,'PromotersIssued').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('修改成功')
+                                this.issueDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }
-                })
-            }else{
-                //修改
-                var role=this.role.filter(item=>{
-                    return item.SysValue==arr._getweixintype
-                })
-                arr._getweixintype=role[0]['ID']
-                addWeixinFans(arr,'PromotersIssued').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('修改成功')
-                        this.issueDialog=false
-                        this.getList()
-                    }else{
-                        this.$message.error(res.errmsg)
-                    }
-                })
-            }
+                }else{
+                    return false;
+                }
+            })
         },
         reset(formName){
             this.$refs[formName].resetFields();

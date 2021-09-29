@@ -23,25 +23,29 @@ router.beforeEach(async(to, from, next) => {
     if (to.path === '/login') {
       // if is logged in, redirect to the home page
       next({ path: '/' })
-      NProgress.done()
+      NProgress.done() 
     } else {
       const hasGetUserInfo = store.getters.name
       if (hasGetUserInfo) {
-        console.log(to)
         next()
       } else {
         try {
           // get user info
           await store.dispatch('user/getInfo').then(res=>{
-            //拉取新的路由列表
-            const roles=res.roles;
-            store.dispatch('GenerateRoutes',{roles}).then(accessRoutes=>{
-              console.log(accessRoutes)
+            if(res.errcode==40011){
+              Message.error(res.errmsg)
+              this.$store.dispatch('user/resetToken')
+              this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+              return;
+            }
+            store.dispatch('GenerateRoutes',{}).then(accessRoutes=>{
               router.addRoutes(accessRoutes);//动态添加可访问路由表
-              console.log(router)
               next({...to,replace:true})
             })
-          })
+          }).catch(err => {
+              this.$store.dispatch('user/resetToken')
+              this.$router.push(`/login?redirect=${this.$route.fullPath}`)
+            })
           next()
         } catch (error) {
           // remove token and go to login page to re-login

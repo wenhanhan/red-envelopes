@@ -84,7 +84,7 @@
         @pagination="getList"
         />
         <el-dialog :title="dialogTitle" :visible.sync="fansDialog" width="30%"  @close="fansDialog=false">
-            <el-form :model="fansForm" ref="fansForm" label-width="100px">
+            <el-form :model="fansForm" ref="fansForm" label-width="100px" :rules="rule">
                 <el-form-item label="用户名称" prop="_fansname">
                     <el-input size="small" style="width:90%" v-model="fansForm._fansname" placeholder="请填写用户的名称" autocomplete="off"></el-input>
                 </el-form-item>
@@ -109,6 +109,7 @@
         </el-dialog>
         <el-dialog :title="authTitle" :visible.sync="authDialog" width="30%" @close="authDialog=false">
             <div class="qrcode" id="qrcode" ref="qrcode"></div>
+            <div class="tips">请通知用户使用微信扫该二维码</div>
         </el-dialog>
         <el-dialog :title="logTitle" :visible.sync="logDialog" width="60%" @close="logDialog=false">
             <el-form :model="logForm" ref="logForm" label-width="80px" :inline="true" size="small">
@@ -182,6 +183,17 @@ export default {
                 end:'',
                 search_text:undefined,
             },
+            rule:{
+                _fansname:[
+                    { required: true, message: '请输入用户名称', trigger: 'change' }
+                ],
+                _moblie:[
+                    { required: true, message: '请输入用户手机号码', trigger: 'change' }
+                ],
+                _fanstype:[
+                    { required: true, message: '请选择用户类型', trigger: 'change' }
+                ]
+            },
             tableData:[],
             drawLogData:[],
             userType:[],
@@ -191,7 +203,7 @@ export default {
             dialogTitle:'',
             authTitle:'',
             logTitle:'粉丝红包领取记录',
-            baseUrl:'http://h.8vv.cn/'
+            baseUrl:'http://m.8vv.cn/'
         }
     },
     created(){
@@ -264,33 +276,39 @@ export default {
                 }).catch(() => {    
             });
         },
-        save(){
-            var arr=Object.assign({},this.fansForm)
-            if(Number(arr._id)==0){
-                //新增
-                arr._type=4
-                addWeixinFans(arr,'WeixinUser').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('新增成功')
-                        this.fansDialog=false
-                        this.getList()
+        save(formName){
+            this.$refs[formName].validate((valid) => {
+                if(valid){
+                    var arr=Object.assign({},this.fansForm)
+                    if(Number(arr._id)==0){
+                        //新增
+                        arr._type=4
+                        addWeixinFans(arr,'WeixinUser').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('新增成功')
+                                this.fansDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }else{
-                        this.$message.error(res.errmsg)
+                        //修改
+                        arr._type=5
+                        addWeixinFans(arr,'WeixinUser').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('修改成功')
+                                this.fansDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }
-                })
-            }else{
-                //修改
-                arr._type=5
-                addWeixinFans(arr,'WeixinUser').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('修改成功')
-                        this.fansDialog=false
-                        this.getList()
-                    }else{
-                        this.$message.error(res.errmsg)
-                    }
-                })
-            }
+                }else{
+                    return false;
+                }
+            })
         },
         handleCommand(command,info){
            switch (command){
@@ -402,5 +420,12 @@ export default {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.tips{
+    font-size: 14px;
+    color: red;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
 }
 </style>

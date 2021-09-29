@@ -99,7 +99,7 @@
                         size="small"
                         style="width:60%"
                         placeholder="查询结果"
-                        disabled
+                        readonly=""
                         v-model="checkRes">
                     </el-input>
                 </div>
@@ -328,6 +328,10 @@ export default {
             });
         },
         check(){
+            if(!this.checkText){
+                this.$message.warning('请输入要查询的序号或密码')
+                return;
+            }
             getCheckInfo({_code:this.checkText},'NumberToEncryption').then(res=>{
                 this.checkRes=res
             })
@@ -378,6 +382,9 @@ export default {
            this.certificatesUploadDialog=false
            this.getCert() 
         },
+        beforeUp(){
+            
+        }
     }
 }
 </script>

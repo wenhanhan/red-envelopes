@@ -7,6 +7,7 @@
                     style="width:250px"
                     v-model="queryForm.time"
                     type="daterange"
+                    unlink-panels=""
                     range-separator="至"
                     value-format="yyyy-MM-dd"
                     start-placeholder="开始日期"
@@ -45,6 +46,15 @@
             <el-table-column prop="FansMoblie" align="center" label="手机号码"></el-table-column>
             <el-table-column prop="WeiXinBillId" align="center" label="发放单号"></el-table-column>
             <el-table-column show-overflow-tooltip prop="remark" align="center" label="备注"></el-table-column>
+            <el-table-column label="操作" align="center" fixed="right" width="150px">
+              <template slot-scope="scope">
+                  <el-button
+                    size="mini"
+                    icon="el-icon-present"
+                    type="primary"
+                    @click="recieve(scope.row)">实物领取</el-button>
+              </template>
+            </el-table-column>
       </el-table>
       <pagination
         v-show="+total>10"
@@ -57,7 +67,7 @@
 </template>
 
 <script>
-import { getWeixinFans,exportsLog} from '@/api/market/redEnv'
+import { getWeixinFans,exportsLog,recieve} from '@/api/market/redEnv'
 export default {
     data(){
         return{
@@ -72,6 +82,7 @@ export default {
                 time:[]
             },
             tableData:[],
+            baseUrl:'http://m.8vv.cn/',
         }
     },
     created(){
@@ -103,7 +114,7 @@ export default {
                     var params={
                         type:'Export',
                         search_text:this.queryForm.search_text,
-                        mode:'REDPACK_SendFailedRecord'
+                        mode:'REDPACK_RECEIVERECORD'
                     }
                     if(this.queryForm.time){
                         params.start=this.queryForm.time[0]
@@ -114,6 +125,16 @@ export default {
                     })
                 }).catch(() => {  
             });
+        },
+        recieve(row){
+            recieve({type:'receiveredpackrecord',id:row.Id}).then(res=>{
+                if(res.errcode==0){
+                    this.$message.success('领取成功')
+                    this.getList()
+                }else{
+                    this.$message.success(res.errmsg)
+                }
+            })
         },
         reset(formName){
             this.$refs[formName].resetFields();

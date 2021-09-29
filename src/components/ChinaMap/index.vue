@@ -127,7 +127,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .echartsLine{
-    height: 700px;
+    height: calc(100vh - 160px);
     width:100%;
 }
 </style>

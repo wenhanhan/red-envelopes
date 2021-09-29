@@ -132,7 +132,7 @@ export default {
                     value:'AwardsTypeValue'
                 }
             ],
-            baseUrl:'http://h.8vv.cn/',
+            baseUrl:'http://m.8vv.cn/',
             tableData:[],
         }
     },

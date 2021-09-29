@@ -30,3 +30,11 @@ export function logout() {
     method: 'post'
   })
 }
+//修改密码
+export function updatePwd(data,type) {
+  return request({
+    url: 'Ajax/AdminPostData.ashx?type='+type,
+    method: 'post',
+    data
+  })
+}

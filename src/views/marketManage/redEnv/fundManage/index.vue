@@ -9,7 +9,7 @@
                 <div class="card-box-item">
                   <span>红包资金余额</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.LastOverMoney}}</div>
@@ -22,7 +22,7 @@
                 <div class="card-box-item">
                   <span>累计支出余额</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.TotalPay}}</div>
@@ -35,7 +35,7 @@
                 <div class="card-box-item">
                   <span>累计充值金额</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.TotalRecharge}}</div>
@@ -48,7 +48,7 @@
                 <div class="card-box-item">
                   <span>昨日支出金额</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.YesterdayPay}}</div>
@@ -61,7 +61,7 @@
                 <div class="card-box-item">
                   <span>今日支出金额</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag type="danger" effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
                 <div class="card-box-items">{{base_info.NowPay}}</div>
@@ -251,7 +251,7 @@ export default {
             tipsDialog:false,
             tableData:[],
             chargeData:[],
-            baseUrl:'http://h.8vv.cn/',
+            baseUrl:'http://m.8vv.cn/',
         }
     },
     created(){

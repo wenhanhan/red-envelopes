@@ -53,6 +53,7 @@ export default {
       return toPath(params)
     },
     handleLink(item) {
+      if(!item.redirect) return;
       const { redirect, path } = item
       if (redirect) {
         this.$router.push(redirect)

@@ -126,16 +126,20 @@ export default {
                     // }
                 },
                 series:[{
-                    name:'',
+                    name:'33',
                     type:this.seriesType,
+                    label:{
+                        show:true,
+                        position: "bottom"
+                    },
                     data:this.dataList,
                     areaStyle: {
                         color:{
                             type: 'linear',
                             x: 0,
                             y: 0,
-                            x2: 1,
-                            y2: 0,
+                            x2: 0,
+                            y2: 1,
                             colorStops: [{
                                 offset: 0, color: '#91dda4' // 0% 处的颜色
                             }, {
@@ -148,12 +152,27 @@ export default {
                     backgroundStyle: {
                         color: 'rgba(180, 180, 180, 0.2)'
                     },
+                    label: {
+                        normal: {
+                            show: false,
+                            position: 'outside',
+                            formatter: '{c}'
+                        }
+                    },
+                    labelLine: {
+                        normal: {
+                            show: true,
+                            length: 0,
+                            length2: 10
+                        }
+                    },
                     itemStyle:{
                         normal:{
                             color: "#86bdf1",
                             label:{
                                 show:true,
-                                position:'top',
+                                position:'bottom',
+                                formatter : "{c}",
                                 textStyle:{
                                     color: '#333',
                                     fontSize:14,

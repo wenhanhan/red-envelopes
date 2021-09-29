@@ -12,15 +12,15 @@
             <el-card shadow="always">
               <div class="card-box">
                 <div class="card-box-item">
-                  <span>日生码量</span>
+                  <span>今日支出红包</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag effect="dark" type="danger" size="mini">实时</el-tag>
                   </span>
                 </div>
-                <div class="card-box-items">{{base_info.code.dayNum}}</div>
+                <div class="card-box-items">{{redPay.ShowCount.nowcount}}</div>
                 <div class="card-box-item">
-                  <span>平台总生码量</span>
-                  <span>{{base_info.code.sumNum}}</span>
+                  <span>累计支出红包</span>
+                  <span>{{redPay.ShowCount.allcount}}</span>
                 </div>
               </div>
             </el-card>
@@ -29,15 +29,15 @@
             <el-card shadow="always">
               <div class="card-box">
                 <div class="card-box-item">
-                  <span>红包剩余量</span>
+                  <span>今日累计扫码</span>
                   <span>
                     <el-tag effect="dark" size="mini">实时</el-tag>
                   </span>
                 </div>
-                <div class="card-box-items">{{base_info.resPack.surplus}}</div>
+                <div class="card-box-items">{{scanData.ShowCount.nowallcount}}</div>
                 <div class="card-box-item">
-                  <span>红包总量</span>
-                  <span>{{base_info.resPack.sumNum}}</span>
+                  <span>累计总扫码</span>
+                  <span>{{scanData.ShowCount.scanallcount}}</span>
                 </div>
               </div>
             </el-card>
@@ -46,17 +46,15 @@
             <el-card shadow="always">
               <div class="card-box">
                 <div class="card-box-item">
-                  <span>合伙人余额</span>
+                  <span>今日增加粉丝</span>
                   <span>
-                    <el-tooltip class="item" effect="dark" :content="base_info.partner.mark" placement="top">
-                      <i class="el-icon-info"></i>
-                    </el-tooltip>
+                    <el-tag effect="dark" type="warning" size="mini">实时</el-tag>
                   </span>
                 </div>
-                <div class="card-box-items">{{base_info.partner.surplus}}</div>
+                <div class="card-box-items">{{fansData.ShowCount.nowcount}}</div>
                 <div class="card-box-item">
-                  <span>合伙人预存款</span>
-                  <span>{{base_info.partner.deposit}}</span>
+                  <span>累计吸粉量</span>
+                  <span>{{fansData.ShowCount.allcount}}</span>
                 </div>
               </div>
             </el-card>
@@ -65,15 +63,15 @@
             <el-card shadow="always">
               <div class="card-box">
                 <div class="card-box-item">
-                  <span>日扫码量</span>
+                  <span>红包资金余额</span>
                   <span>
-                    <el-tag effect="dark" size="mini">实时</el-tag>
+                    <el-tag effect="dark" type="danger" size="mini">实时</el-tag>
                   </span>
                 </div>
-                <div class="card-box-items">{{base_info.scan.dayNum}}</div>
+                <div class="card-box-items">{{fundData.LastOverMoney}}</div>
                 <div class="card-box-item">
-                  <span>总扫码量</span>
-                  <span>{{base_info.scan.sumNum}}</span>
+                  <span>累计充值金额</span>
+                  <span>{{fundData.TotalRecharge}}</span>
                 </div>
               </div>
             </el-card>
@@ -92,39 +90,61 @@
           <el-col :span="8">
             <el-card shadow="always">
               <div slot="header" style="display:flex;justify-content: space-between">
-                <span>访问量</span>
+                <span>粉丝统计</span>
                 <span>
-                    <el-tag effect="dark" size="mini">每周</el-tag>
+                    <el-select style="width:100px" size="mini" v-model="queryFansForm.search_type" @change="changeFansType" placeholder="汇总方式">
+                        <el-option
+                            v-for="item in options"
+                            :key="item.value"
+                            :label="item.label"
+                            :value="item.value">
+                        </el-option>
+                    </el-select>
                 </span>
               </div>
               <div class="card-dashboard" id="scan">
-                 <EchartsLine :id="id1" :xData='xData' :dataList='dataList' :max='max' :seriesType='seriesType1'></EchartsLine>
+                 <EchartsLine :id="id1" :xData='fans_xData' :dataList='fans_dataList' :max='max' :seriesType='seriesType1'></EchartsLine>
               </div>
             </el-card>
           </el-col>
           <el-col :span="8">
             <el-card shadow="always">
               <div slot="header" style="display:flex;justify-content: space-between">
-                <span>代理商数量</span>
+                <span>扫码统计</span>
                 <span>
-                    <el-tag effect="dark" size="mini">每周</el-tag>
+                    <el-select style="width:100px" size="mini" v-model="queryScanForm.search_type" @change="changeType" placeholder="汇总方式">
+                      <el-option
+                          v-for="item in options"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                      </el-option>
+                    </el-select>
                 </span>
               </div>
               <div class="card-dashboard" id="agent">
-                 <EchartsBar :id="id2" :xData='xData' :dataList='dataList2' :max='max' :seriesType='seriesType2'></EchartsBar>
+                 <EchartsLine :id="id2" :xData='scan_xData' :dataList='scan_dataList' :max='max' :seriesType='seriesType1'></EchartsLine>
               </div>
             </el-card>
           </el-col>
           <el-col :span="8">
             <el-card shadow="always">
               <div slot="header" style="display:flex;justify-content: space-between">
-                <span>客户来源</span>
+                <span>红包支出</span>
                 <span>
-                    <el-tag effect="dark" size="mini">每周</el-tag>
+                    <el-select style="width:100px" size="mini" v-model="queryPayForm.search_type" @change="changePayType" placeholder="汇总方式">
+                      <el-option
+                          v-for="item in options"
+                          :key="item.value"
+                          :label="item.label"
+                          :value="item.value">
+                      </el-option>
+                    </el-select>
                 </span>
               </div>
               <div class="card-dashboard" id="user">
-                 <EchartsPie :id="id3" :dataList='pieItems'></EchartsPie>
+                <EchartsLine :id="id3" :xData='pay_xData' :dataList='pay_dataList' :max='max' :seriesType='seriesType1'></EchartsLine>
+                 <!-- <EchartsPie :id="id3" :dataList='pieItems'></EchartsPie> -->
               </div>
             </el-card>
           </el-col>
@@ -134,65 +154,108 @@
   </div>
 </template>
 <script>
-import { getList,getCompanyType,addCompany,updateCompany,freeze } from '@/api/company'
+import { getSystemInfo} from '@/api/sysFun/system'
+import { getWeixinFans} from '@/api/market/redEnv'
 import EchartsLine from "@/components/EchartsLine"
 import EchartsBar from "@/components/EchartsBar"
 import EchartsPie from "@/components/EchartsPie"
-import {getRouters} from '@/api/menu'
 export default {
   components:{EchartsLine,EchartsBar,EchartsPie},
   data() {
     return {
-      base_info:{
-        code:{
-          dayNum:100000,
-          sumNum:'200万',
-          mark:'没什么好说的'
-        },
-        resPack:{
-          surplus:3291.68,
-          sumNum:3311,
-          mark:'没什么好说的'
-        },
-        partner:{
-          surplus:'￥10400.00',
-          deposit:'￥4600.00',
-          mark:'都来存款吧'
-        },
-        scan:{
-          dayNum:1000,
-          sumNum:'1000万',
-          mark:'没什么好说的'
-        }
-      },
       //表格数据
       id1:'scan',
       id2:'agent',
       id3:'user',
-      xData:['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
-      dataList:[820, 1000, 850, 934, 800, 1330, 1320],
-      dataList2:[820, 850, 1000, 1100, 1200, 1330, 1340],
-      pieItems:[
-                {value: 1048, name: '直接访问'},
-                {value: 735, name: '直接访问'},
-                {value: 580, name: '邮件营销'},
-                {value: 484, name: '联盟广告'},
-                {value: 300, name: '视频广告'}
-      ],
+      scan_xData:[],
+      scan_dataList:[],
+      fans_xData:[],
+      fans_dataList:[],
+      pay_xData:[],
+      pay_dataList:[],
       seriesType1:'line',
       seriesType2:'bar',
-      max:undefined
+      max:undefined,
+      queryPayForm:{
+        type:'Analysis_RedPackOutlay',
+        search_text:1,
+        search_type:2
+      },
+      queryScanForm:{
+        type:'Analysis_RedPackUserScanCode',
+        search_text:1,
+        search_type:2
+      },
+      queryFansForm:{
+        type:'Analysis_RedPackAttractFans',
+        search_text:1,
+        search_type:2
+      },
+      redPay:{},//红包支出数据
+      scanData:{},
+      fansData:{},
+      fundData:{},
+      options:[
+          {
+              label:'半月',
+              value:1
+          },
+          {
+              label:'一年',
+              value:2
+          },
+          {
+              label:'近五年',
+              value:3
+          }
+      ]
     }
   },
   created() {
-    //  getRouters().then(res=>{
-    //     console.log(res)
-    //   })
+    this.getWxPayData()
+    this.getScanData()
+    this.getFansData()
+    this.getfundData()
   },
   filters:{
     
   },
   methods: {
+    getWxPayData(){
+      getSystemInfo(this.queryPayForm).then(res=>{
+          this.redPay=res
+          this.pay_xData=res.xAxis[0].data
+          this.pay_dataList=res.series[0].data
+      })
+    },
+    getScanData(){
+        getSystemInfo(this.queryScanForm).then(res=>{
+            this.scanData=res
+            this.scan_xData=res.xAxis[0].data
+            this.scan_dataList=res.series[0].data
+        })
+    },
+    getFansData(){
+      getSystemInfo(this.queryFansForm).then(res=>{
+          this.fansData=res
+          this.fans_xData=res.xAxis[0].data
+          this.fans_dataList=res.series[0].data
+      })
+    },
+    getfundData(){
+      getWeixinFans({type:'GetMerchantDate'}).then(res=>{
+          this.fundData=res
+      })
+    },
+    changeType(){
+        this.getScanData()
+    },
+    changeFansType(){
+        this.getFansData()
+    },
+    changePayType(){
+      this.getWxPayData()
+    }
   }
 }
 </script>
@@ -245,6 +308,6 @@ export default {
   }
   .card-dashboard{
     width: 100%;
-    height: calc(100vh - 550px);
+    height: calc(100vh - 500px);
   }
 </style>

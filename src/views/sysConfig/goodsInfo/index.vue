@@ -59,10 +59,10 @@
             </el-table-column>
       </el-table>
       <el-dialog :title="dialogTitle" :visible.sync="goodsDialog" width="40%" @close="goodsDialog=false">
-        <el-form :model="goodsForm" ref="goodsForm" label-width="100px">
+        <el-form :model="goodsForm" ref="goodsForm" label-width="100px" :rules="goodsRule">
             <el-row>
                 <el-col :span="12">
-                    <el-form-item label="商品类别" prop="search_type">
+                    <el-form-item label="商品类别" prop="_class">
                         <el-select style="width:100%" size="small" v-model="goodsForm._class" placeholder="请选择商品类别">
                             <el-option
                                 v-for="item in typeOption"
@@ -116,7 +116,7 @@
             </el-row>
         </el-form>
         <div slot="footer" class="dialog-footer">
-            <el-button size="medium"  type="primary" @click="save('storeForm')">确 定</el-button>
+            <el-button size="medium"  type="primary" @click="save('goodsForm')">确 定</el-button>
             <el-button size="medium" style="margin-left:60px" @click="accountDialog= false">取 消</el-button>
         </div>
       </el-dialog>
@@ -213,6 +213,17 @@ export default {
                 _remark:"",
                 _id:0
             },
+            goodsRule:{
+                _class: [
+                    { required: true, message: '请选择商品类别', trigger: 'change' }
+                ],
+                _name:[
+                    { required: true, message: '请输入商品的名称', trigger: 'change' }
+                ],
+                _norm:[
+                    { required: true, message: '请输入商品规格型号', trigger: 'change' }
+                ]
+            },
             typeOptions:[],
             typeOption:[],
             tableData:[],
@@ -280,34 +291,41 @@ export default {
             this.goodsForm._place=ob.ProductPlace
             this.goodsForm._url=ob.ProductUrl
             this.goodsForm._remark=ob.ProductRemark
+            this.$forceUpdate()
         },
-        save(){
-            var arr=Object.assign({},this.goodsForm)
-            if(Number(arr._id)==0){
-                //新增
-                arr._type=1
-                setQueryInfo(arr,'Base_Product').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('新增成功')
-                        this.goodsDialog=false
-                        this.getList()
+        save(formName){
+            this.$refs[formName].validate((valid) => {
+                if(valid){
+                    var arr=Object.assign({},this.goodsForm)
+                    if(Number(arr._id)==0){
+                        //新增
+                        arr._type=1
+                        setQueryInfo(arr,'Base_Product').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('新增成功')
+                                this.goodsDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }else{
-                        this.$message.error(res.errmsg)
+                        //修改
+                        arr._type=2
+                        setQueryInfo(arr,'Base_Product').then(res=>{
+                            if(res.errcode==0){
+                                this.$message.success('修改成功')
+                                this.goodsDialog=false
+                                this.getList()
+                            }else{
+                                this.$message.error(res.errmsg)
+                            }
+                        })
                     }
-                })
-            }else{
-                //修改
-                arr._type=2
-                setQueryInfo(arr,'Base_Product').then(res=>{
-                    if(res.errcode==0){
-                        this.$message.success('修改成功')
-                        this.goodsDialog=false
-                        this.getList()
-                    }else{
-                        this.$message.error(res.errmsg)
-                    }
-                })
-            }
+                }else{
+                    return false;
+                }
+            })
         },
         deleAccount(row){
             var arr={
@@ -342,9 +360,16 @@ export default {
             this.typeDialogTitle="修改类别"
             this.addTypeDialog=true
             var ob=Object.assign({},row)
-            this.addTypeForm._id=ob.Id
+            this.addTypeForm._id=ob.ID
+            this.addTypeForm._value=ob.SysValue
+            this.addTypeForm._systype=7
+            this._systips='商品类别'
         },
         saveType(){
+            if(!this.addTypeForm._value){
+                this.$message.warning('请输入添加的类别名称')
+                return;
+            }
             var arr=Object.assign({},this.addTypeForm)
             if(Number(arr._id)==0){
                 //新增
@@ -390,7 +415,7 @@ export default {
                             this.$message.success('删除成功')
                             this.getTypeData()
                         }else{
-                            this.$message.error('请联系管理员')
+                            this.$message.error(res.errmsg)
                         }
                     })
                 }).catch(() => {    
